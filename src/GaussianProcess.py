@@ -32,20 +32,6 @@ def SE2(X1, X2):
     s2 = np.exp(-0.5*r**2)
     return s2
 
-def SE(X):
-    # loop method
-    s2 = np.zeros((X.shape[0], X.shape[0]))
-    l1 = 2
-    l2 = 2
-    r = []
-    for i in range(X.shape[0]):
-        xi = X[i]
-        for j in range(X.shape[0]):
-            xj = X[j]
-            s2[i, j] = np.exp(-0.5*(np.linalg.norm((xi - xj)/(np.array([l1, l2]))))**2) 
-            r.append(np.linalg.norm(xi - xj))
-    return s2, r
-
 def Matern(X):
     s2 = np.zeros((X.shape[0], X.shape[0]))
     l1 = 2
@@ -184,30 +170,6 @@ def plot_true_obj(n):
     axs[1,1].set_axis_off()
     axs[2,1].set_axis_off()
     axs[3,1].set_axis_off()
-    
-    # for angle in range(0, 360*4 + 1):
-    #     # Normalize the angle to the range [-180, 180] for display
-    #     angle_norm = (angle + 180) % 360 - 180
-
-    #     # Cycle through a full rotation of elevation, then azimuth, roll, and all
-    #     elev = azim = roll = 0
-    #     if angle <= 360:
-    #         elev = angle_norm
-    #     elif angle <= 360*2:
-    #         azim = angle_norm
-    #     elif angle <= 360*3:
-    #         roll = angle_norm
-    #     else:
-    #         elev = azim = roll = angle_norm
-
-    #     # Update the axis view and title
-    #     axs[0,0].view_init(azim, elev, roll)
-    #     axs[1,0].view_init(azim, elev, roll)
-    #     axs[0,1].view_init(azim, elev, roll)
-    #     axs[1,1].view_init(azim, elev, roll)
-
-    #     plt.draw()
-    #     plt.pause(.001)
 
 def mean_prediction(X, X_obs, y_obs):
     sigma_G = SE2(X_obs, X_obs)
@@ -219,7 +181,6 @@ def mean_prediction(X, X_obs, y_obs):
     sigma_pred = np.sqrt(np.diagonal(sigma_pred))
     return mu_pred, sigma_pred
 
-# n = 2
 
 n = 20
 plot_true_obj(n)
