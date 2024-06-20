@@ -53,19 +53,18 @@ X_test = np.linspace(0, 10, n_pred).reshape(n_pred, n_dim)
 y_train = my_func(X_train)
 
 hyp, mu_pred, sigma_pred = control(X_train, X_test)
-# sigma_pred = np.sqrt(sigma_pred)
 
-k_train = cov(X_train, X_train, hyp) + np.eye(X_train.shape[0], X_train.shape[0]) * hyp[2]**2
+k_train = cov(X_train, X_train, hyp)# + np.eye(X_train.shape[0], X_train.shape[0]) * hyp[2]**2
 k_cross = cov(X_train, X_test, hyp)
 k_test = cov(X_test, X_test, hyp)
 
 mu_post = np.transpose(k_cross) @ np.linalg.inv(k_train) @ y_train
-sigma_post = np.sqrt(np.diag(k_test - np.transpose(k_cross) @ np.linalg.inv(k_train) @ k_cross))
+sigma_post = np.diag((k_test - np.transpose(k_cross) @ np.linalg.inv(k_train) @ k_cross))
 
 beta = 1
 alpha_post = mu_post - beta * sigma_post.reshape(100,1)
 
-alpha_pred = mu_pred - beta * np.sqrt(sigma_pred)
+alpha_pred = mu_pred - beta * sigma_pred
 
                      
 fig, ax = plt.subplots(2,2)
@@ -82,8 +81,8 @@ print(X_test.shape, alpha_post.shape)
 ax[0, 1].plot(X_test, my_func(X_test), 'k--', alpha = 0.3)
 ax[0, 1].plot(X_test, mu_pred, 'b-', alpha = 0.3)
 ax[1, 1].plot(X_test, alpha_pred, 'r-')
-low = mu_pred - np.sqrt(sigma_pred)
-high = mu_pred + np.sqrt(sigma_pred)
+low = mu_pred - (sigma_pred)
+high = mu_pred + (sigma_pred)
 ax[0, 1].fill_between(X_test.reshape(100,), low.reshape(100,), high.reshape(100,), alpha = 0.3)
 
 # ax[0].legend(['True function', 'Training points', 'My predicted', 'PyGPs predicted'])
@@ -92,7 +91,8 @@ ax[0, 1].fill_between(X_test.reshape(100,), low.reshape(100,), high.reshape(100,
 ax[0, 0].set_ylim(-10, 10)
 ax[0, 1].set_ylim(-10, 10)
 plt.show()
-
+print(sigma_pred[0:5])
+print(sigma_post[0:5])
 
 
 
