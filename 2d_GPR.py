@@ -64,9 +64,11 @@ def determine_grid(up, low, ndim, n):
 
 def determine_new_point(X_new1, inc):
 
-    x = np.linspace(X_new1[0] - inc, X_new1[0] + inc, 21)
-    y = np.linspace(X_new1[1] - inc, X_new1[1] + inc, 21)
-    z = np.linspace(X_new1[2] - inc, X_new1[2] + inc, 21)
+    x = np.linspace(X_new1[0] - inc, X_new1[0] + inc, 31)
+    y = np.linspace(X_new1[1] - inc, X_new1[1] + inc, 31)
+    z = np.linspace(X_new1[2] - inc, X_new1[2] + inc, 31)
+
+    print(x)
 
     X_temp = np.array([])
     k = 0
@@ -103,11 +105,11 @@ def determine_new_point(X_new1, inc):
 
 global X_train, y_train 
 
-n = 21
+n = 50
 ndim = 3
 a = -10
 b = 10
-presamples = 8
+presamples = 10
 
 X_train = np.random.uniform(low = a, high = b, size=(presamples,ndim))
 y_train = my_func(X_train)
@@ -125,8 +127,8 @@ iter_count = 0
 while err > 1e-4:
 
     iter_count += 1
-
-    kernel = 1 * RBF(length_scale = 2*np.ones((ndim, 1)), length_scale_bounds=(1e-3, 100)) + WhiteKernel(noise_level=1e-3, noise_level_bounds=(1e-9, 1e2))
+    kernel = 1 * Matern(length_scale = [1.0], length_scale_bounds = (1e-3, 100), nu = 5/2)
+    #kernel = 1 * RBF(length_scale = 2*np.ones((ndim, 1)), length_scale_bounds=(1e-3, 100)) + WhiteKernel(noise_level=1e-3, noise_level_bounds=(1e-9, 1e2))
     gaussian_process = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=20)
     gaussian_process.fit(X_train.reshape(-1,ndim), y_train)
     mu_3, sigma_pred = gaussian_process.predict(X_test, return_std=True)
@@ -136,8 +138,6 @@ while err > 1e-4:
 
     X_new1 = X_test[np.argmin(alpha2)]
     y_proj = np.min(alpha2)
-
-    X_new1, y_proj, X_temp, mu_temp = determine_new_point(X_new1, inc)
 
     X_train = np.append(X_train, X_new1.reshape(1, ndim), axis=0)
     y_new = my_func(X_new1.reshape(1, ndim))
@@ -149,9 +149,12 @@ while err > 1e-4:
 
     err_list.append(err)
 
-improvement = []
 
-print(err_list)
+X_new1, y_proj, X_temp, mu_temp = determine_new_point(X_new1, inc)
+
+print(X_new1)
+
+improvement = []
 
 print('Number of iterations including presampling: ', iter_count + presamples)
 print('Final error: ', err_list[-1])
